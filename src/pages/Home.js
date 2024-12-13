@@ -9,7 +9,7 @@ function Home() {
     <div style={{ fontFamily: "Arial, sans-serif", padding: "20px", textAlign: "right" }}>
       {/* Title */}
       <h1 style={{ textAlign: "center", color: "#333", marginBottom: "20px" }}>
-        ברוכים הבאים למרכז "שרון פז" בקריית ביאליק
+         מטורף!ברוכים הבאים למרכז "שרון פז" בקריית ביאליק
       </h1>
 
       {/* Content Container */}
