@@ -8,14 +8,23 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .  # וודא שהכל מתבצע מהשורש
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          path: .  # מושך את הקוד לשורש
+
+      - name: List project structure
+        run: ls -la  # שלב הבדיקה - מציג את כל מבנה התיקיות
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'  # השתמש בגרסת Node שאתה משתמש בה מקומית
+          node-version: '18'  # גרסת Node התואמת לפרויקט שלך
 
       - name: Clean npm cache
         run: npm cache clean --force
@@ -23,8 +32,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify public directory
+        run: ls -la public  # בדיקה שהתיקייה public קיימת בשורש
+
       - name: Build project
-        run: npm run build
+        run: npm run build  # בונה את הפרויקט
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
