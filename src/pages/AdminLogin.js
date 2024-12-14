@@ -76,7 +76,7 @@ function Login() {
       <p style={{ marginTop: "20px", fontSize: "1rem" }}>
         אין לך חשבון?{" "}
         <Link
-          to="/student-register"
+         
           style={{ color: "#007BFF", textDecoration: "none", fontWeight: "bold" }}
         >
           פנה למנהל המרכז
