@@ -53,5 +53,4 @@ yarn-error.log*
 .prettier.cache
 
 # Local React files
-public/*.html
 public/favicon.ico
