@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { db } from "./firebase"; // Import your Firebase configuration
+import { db } from "../firebaseConfig"; // Import your Firebase configuration
 import { collection, getDocs } from "firebase/firestore";
 
 const RegisterToClass = () => {
