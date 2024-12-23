@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import StudenLogin from "./pages/StudentLogin";
 import AdminLogin from "./pages/AdminLogin";
 import StudentRegister from "./pages/StudentRegister";
+import FeedbackPage from "./pages/FeedbackPage";
 
 
 // Import components
@@ -27,6 +28,7 @@ function App() {
           <Route path="/student-register" element={<StudentRegister />} />
           <Route path="/adminhomepage" element={<AdminHomePage />} />
           <Route path="/register" element={<RegisterToCourse />} />
+          <Route path="/feedbackpage" element={<FeedbackPage />} />
         </Routes>
       </BrowserRouter>
     </div>

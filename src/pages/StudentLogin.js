@@ -22,6 +22,12 @@ function Login() {
       // Check if the query returned a match
       if (!querySnapshot.empty) {
         const user = querySnapshot.docs[0].data();
+        const userId = querySnapshot.docs[0].id;
+
+        localStorage.setItem(
+          "loggedInUser",
+          JSON.stringify({ id: userId, ...user })
+        );
 
         // Redirect based on user role
         if (user.role.trim() === "student") {
