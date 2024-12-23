@@ -4,6 +4,7 @@ import { db } from "../firebaseConfig"; // Import your Firebase configuration
 import { collection, getDocs } from "firebase/firestore";
 
 const RegisterToClass = () => {
+  const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [filteredClasses, setFilteredClasses] = useState([]);
   const [filters, setFilters] = useState({});
@@ -69,7 +70,10 @@ const RegisterToClass = () => {
             <p><strong>Guide:</strong> {cls.guide}</p>
             <p><strong>Equipment:</strong> {cls.equipment}</p>
             <p><strong>Min Age:</strong> {cls.min_age}</p>
-            <button onClick={() => console.log(`Selected class: ${cls.id}`)}>Register</button>
+            <button onClick={() => {
+              console.log(`Selected class: ${cls.id}`);
+              navigate(`/RegisterToCourseNext/${cls.id}`)
+              }}>Register</button>
           </div>
         ))}
       </div>

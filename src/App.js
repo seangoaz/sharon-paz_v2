@@ -14,6 +14,7 @@ import FeedbackPage from "./pages/FeedbackPage";
 // Import components
 import Header from './components/Header';
 import RegisterToCourse from './pages/RegisterToCourse';
+import RegisterToCourseNext from './pages/RegisterToCourseNext';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/adminhomepage" element={<AdminHomePage />} />
           <Route path="/register" element={<RegisterToCourse />} />
           <Route path="/feedbackpage" element={<FeedbackPage />} />
+          <Route path="/RegisterToCourseNext/:selectedClass" element={<RegisterToCourseNext />} />
         </Routes>
       </BrowserRouter>
     </div>
