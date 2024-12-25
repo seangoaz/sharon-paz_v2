@@ -9,6 +9,7 @@ import StudenLogin from "./pages/StudentLogin";
 import AdminLogin from "./pages/AdminLogin";
 import StudentRegister from "./pages/StudentRegister";
 import FeedbackPage from "./pages/FeedbackPage";
+import AddCourse from "./components/AddCourse"; 
 
 
 // Import components
@@ -29,6 +30,7 @@ function App() {
           <Route path="/adminhomepage" element={<AdminHomePage />} />
           <Route path="/register" element={<RegisterToCourse />} />
           <Route path="/feedbackpage" element={<FeedbackPage />} />
+          <Route path="/add-course" element={<AddCourse />} />
         </Routes>
       </BrowserRouter>
     </div>
