@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import sharonPhoto from "../assets/images/sharonPhoto.png"; // Replace with your image path
-
 function Home() {
   const navigate = useNavigate();
 
