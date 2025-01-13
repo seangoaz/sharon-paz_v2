@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import sharonPhoto from "../assets/images/sharonPhoto.png"; // Replace with your image path
-
 function Home() {
   const navigate = useNavigate();
 
@@ -9,7 +8,7 @@ function Home() {
     <div style={{ fontFamily: "Arial, sans-serif", padding: "20px", textAlign: "right" }}>
       {/* Title */}
       <h1 style={{ textAlign: "center", color: "#333", marginBottom: "20px" }}>
-         ברוכים הבאים למרכז "שרון פז" בקריית ביאליק
+        ברוכים הבאים למרכז "שרון פז" בקריית ביאליק
       </h1>
 
       {/* Content Container */}
@@ -45,9 +44,8 @@ function Home() {
             בין המקצועות ללימוד: מחול, ג'אז, קלאסי, לירי, היפ הופ ועוד.
           </p>
           <p>
-            מרכז שרון פז נפתח לזכרה של הרקדנית שרון פז ז"ל. 
-            המרכז מנציח את דרכה של שרון
-             וממשיך את חזונה למען קידום הרקדנים הצעירים 
+            מרכז שרון פז נפתח לזכרה של הרקדנית שרון פז ז"ל. המרכז מנציח את דרכה של שרון
+            וממשיך את חזונה למען קידום הרקדנים הצעירים.
           </p>
 
           {/* Buttons */}

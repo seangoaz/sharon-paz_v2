@@ -1,16 +1,23 @@
-import React, { useState } from "react";
-import { db } from "../firebaseConfig"; // Adjust path as needed
+import React, { useState, useEffect } from "react";
+import { db } from "../firebaseConfig";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { useNavigate, Link } from "react-router-dom"; // Import Link
+import { useNavigate, Link } from "react-router-dom";
 
-function Login() {
+function StudentLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // בדוק אם יש יוזר שמחובר ב-LocalStorage
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (loggedInUser) {
+      console.log("User ID from LocalStorage:", loggedInUser.id);
+    }
+  }, []);
+
   const handleLogin = async () => {
     try {
-      // Query Firestore to find a user matching the email and password
       const q = query(
         collection(db, "users"),
         where("email", "==", email),
@@ -19,7 +26,6 @@ function Login() {
 
       const querySnapshot = await getDocs(q);
 
-      // Check if the query returned a match
       if (!querySnapshot.empty) {
         const user = querySnapshot.docs[0].data();
         const userId = querySnapshot.docs[0].id;
@@ -29,15 +35,13 @@ function Login() {
           JSON.stringify({ id: userId, ...user })
         );
 
-        // Redirect based on user role
         if (user.role.trim() === "student") {
           alert("ברוך הבא תלמיד!");
           navigate("/studenthomepage");
-        }  else {
+        } else {
           alert("Role is undefined. Please contact support.");
         }
       } else {
-        // No match found in Firestore
         alert("Invalid email or password. Please try again.");
       }
     } catch (error) {
@@ -77,8 +81,6 @@ function Login() {
       >
         התחבר
       </button>
-
-      {/* Small Title and Link */}
       <p style={{ marginTop: "20px", fontSize: "1rem" }}>
         אין לך חשבון?{" "}
         <Link
@@ -92,4 +94,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default StudentLogin;
