@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebaseConfig"; // Import your Firebase configuration
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, arrayUnion } from "firebase/firestore";
 
 const RegisterToClass = () => {
   const [classes, setClasses] = useState([]);
@@ -35,6 +35,28 @@ const RegisterToClass = () => {
     setFilteredClasses(result);
   }, [filters, classes]);
 
+  async function addStudentToClass(classId) {
+    try {
+      const user = JSON.parse(localStorage.getItem('loggedInUser'));
+
+      console.log(user);
+      // Reference to the user document in the 'users' collection
+      const userRef = doc(db, "users", user.id);
+  
+      // Reference to the class document
+      const classRef = doc(db, "classes", classId);
+  
+      // Add the user reference to the 'users' array in the class document
+      await updateDoc(classRef, {
+        students: arrayUnion(userRef) // Firestore's arrayUnion ensures no duplicates
+      });
+  
+      console.log(`Student ${user.email} added to class ${classId}.`);
+    } catch (error) {
+      console.error("Error adding student to class:", error);
+    }
+  }
+
   return (
     <div>
       <h1>Register to a Class</h1>
@@ -68,7 +90,7 @@ const RegisterToClass = () => {
             <p><strong>Guide:</strong> {cls.guide}</p>
             <p><strong>Equipment:</strong> {cls.equipment}</p>
             <p><strong>Min Age:</strong> {cls.min_age}</p>
-            <button onClick={() => console.log(`Selected class: ${cls.id}`)}>Register</button>
+            <button onClick={() => addStudentToClass(cls.id)}>Register</button>
           </div>
         ))}
       </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { db } from "../firebaseConfig"; // Adjust the path to your firebase config
-import { collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, getDoc, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
 
 function AdminHome() {
   const [courseList, setCourseList] = useState([]); // State to hold the courses
@@ -82,6 +82,38 @@ function AdminHome() {
       [name]: value,
     }));
   };
+
+  async function fetchAndDisplayClassUsers(classId) {
+    try {
+      // Reference to the class document
+      const classRef = doc(db, "classes", classId);
+      const classDoc = await getDoc(classRef);
+  
+      if (classDoc.exists()) {
+        // Get the list of user references from the class object
+        const userRefs = classDoc.data().students; // Array of DocumentReferences
+        console.log(userRefs);
+        console.log(classDoc.data());
+        // Fetch each user's document to get the username
+        const usernames = await Promise.all(
+          userRefs.map(async (userRef) => {
+            const userDoc = await getDoc(userRef);
+            return userDoc.exists() ? userDoc.data().email : null;
+          })
+        );
+  
+        // Filter out any null values (if some users were not found)
+        const validUsernames = usernames.filter((username) => username !== null);
+  
+        // Display usernames in an alert
+        alert(`Users in the class:\n${validUsernames.join(", ")}`);
+      } else {
+        console.log("Class document does not exist.");
+      }
+    } catch (error) {
+      console.error("Error fetching class users:", error);
+    }
+  }
 
   // Handle course update
   const handleUpdateCourse = async (e) => {
@@ -177,7 +209,7 @@ function AdminHome() {
                   <p>No image available</p> // Fallback in case imageUrl is empty
                 )}
                  <button
-                  onClick={() => fetchStudents(course.id)}
+                  onClick={() => fetchAndDisplayClassUsers(course.id)}
                   style={{
                     padding: "5px 10px",
                     margin: "10px 0",
