@@ -1,29 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig"; // Import your Firebase configuration
-import { collection, getDocs, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
 const RegisterToClass = () => {
   const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [filteredClasses, setFilteredClasses] = useState([]);
-  const [filters, setFilters] = useState({});
+  const [user, setUser] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+      if (!loggedInUser) {
+        console.error("No user found in localStorage");
+        return;
+      }
+
+      const userDoc = await getDoc(doc(db, "users", loggedInUser.id));
+      if (userDoc.exists()) {
+        setUser({ id: loggedInUser.id, ...userDoc.data() });
+      } else {
+        console.error("User not found in database");
+      }
+    };
+
     const fetchClasses = async () => {
       const classesCollection = collection(db, "classes");
       const classSnapshot = await getDocs(classesCollection);
       const classList = classSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setClasses(classList);
-      setFilteredClasses(classList);
     };
 
+    fetchUserData();
     fetchClasses();
   }, []);
-
-  const handleFilterChange = (field, value) => {
-    setFilters({ ...filters, [field]: value });
-  };
 
   useEffect(() => {
     let result = classes;
@@ -37,30 +49,8 @@ const RegisterToClass = () => {
     setFilteredClasses(result);
   }, [filters, classes]);
 
-  async function addStudentToClass(classId) {
-    try {
-      const user = JSON.parse(localStorage.getItem('loggedInUser'));
-
-      console.log(user);
-      // Reference to the user document in the 'users' collection
-      const userRef = doc(db, "users", user.id);
-  
-      // Reference to the class document
-      const classRef = doc(db, "classes", classId);
-  
-      // Add the user reference to the 'users' array in the class document
-      await updateDoc(classRef, {
-        students: arrayUnion(userRef) // Firestore's arrayUnion ensures no duplicates
-      });
-  
-      console.log(`Student ${user.email} added to class ${classId}.`);
-    } catch (error) {
-      console.error("Error adding student to class:", error);
-    }
-  }
-
   return (
-    <div>
+    <div style={{ padding: "1rem" }}>
       <h1>Register to a Class</h1>
       
       {/* Filters Section */}
@@ -87,12 +77,39 @@ const RegisterToClass = () => {
       {/* Classes Catalog */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
         {filteredClasses.map((cls) => (
-          <div key={cls.id} style={{ border: "1px solid #ccc", padding: "1rem" }}>
-            <h3>{cls.name}</h3>
-            <p><strong>Guide:</strong> {cls.guide}</p>
-            <p><strong>Equipment:</strong> {cls.equipment}</p>
-            <p><strong>Min Age:</strong> {cls.min_age}</p>
-            <button onClick={() => addStudentToClass(cls.id)}>Register</button>
+          <div
+            key={cls.id}
+            style={{
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              padding: "0.5rem",
+              textAlign: "center",
+              backgroundColor: "#f9f9f9",
+            }}
+          >
+            <h4 style={{ margin: "0.5rem 0" }}>{cls.name}</h4>
+            {cls.imageUrl && (
+              <img
+                src={cls.imageUrl}
+                alt={cls.name}
+                style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px" }}
+              />
+            )}
+            <button
+              onClick={() => openPopup(cls)}
+              style={{
+                marginTop: "0.5rem",
+                padding: "0.25rem 0.5rem",
+                fontSize: "0.85rem",
+                backgroundColor: "#007bff",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              View Details
+            </button>
           </div>
         ))}
       </div>
