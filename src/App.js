@@ -32,10 +32,7 @@ function App() {
           <Route path="/register" element={<RegisterToCourse />} />
           <Route path="/feedbackpage" element={<FeedbackPage />} />
           <Route path="/RegisterToCourseNext/:selectedClass" element={<RegisterToCourseNext />} />
-          <Route path="/add-course" element={<AddCourse />} />
-          <Route path="/RegisterToCourseNext/:selectedClass2" element={<RegisterToCourseNext />} />
-
-        </Routes>
+      </Routes>
       </BrowserRouter>
     </div>
   );

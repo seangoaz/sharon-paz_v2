@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { db } from "../firebaseConfig"; // Import your Firebase configuration
-import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebaseConfig";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 
 const RegisterToClass = () => {
   const navigate = useNavigate();
@@ -38,44 +38,22 @@ const RegisterToClass = () => {
   }, []);
 
   useEffect(() => {
-    let result = classes;
-
-    // Apply filters dynamically
-    for (const [key, value] of Object.entries(filters)) {
-      if (value) {
-        result = result.filter((cls) => cls[key].toString().includes(value));
-      }
+    if (user) {
+      const filtered = classes.filter((cls) => cls.minAge <= user.age);
+      console.log(user.name)
+      setFilteredClasses(filtered);
     }
-    setFilteredClasses(result);
-  }, [filters, classes]);
+  }, [user, classes]);
+
+  const openPopup = (cls) => setSelectedClass(cls);
+  const closePopup = () => setSelectedClass(null);
 
   return (
     <div style={{ padding: "1rem" }}>
       <h1>Register to a Class</h1>
-      
-      {/* Filters Section */}
-      <div>
-        <input
-          placeholder="Search by name"
-          onChange={(e) => handleFilterChange("name", e.target.value)}
-        />
-        <input
-          placeholder="Search by equipment"
-          onChange={(e) => handleFilterChange("equipment", e.target.value)}
-        />
-        <input
-          placeholder="Search by guide"
-          onChange={(e) => handleFilterChange("guide", e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Minimum Age"
-          onChange={(e) => handleFilterChange("min_age", e.target.value)}
-        />
-      </div>
 
       {/* Classes Catalog */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
         {filteredClasses.map((cls) => (
           <div
             key={cls.id}
@@ -113,6 +91,87 @@ const RegisterToClass = () => {
           </div>
         ))}
       </div>
+
+      {/* Popup for Class Details */}
+      {selectedClass && (
+        <div
+          style={{
+            position: "fixed",
+            top: "0",
+            left: "0",
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: "1000",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              padding: "1rem",
+              borderRadius: "8px",
+              width: "90%",
+              maxWidth: "400px",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+              textAlign: "left",
+            }}
+          >
+            <h2 style={{ margin: "0 0 1rem 0", fontSize: "1.5rem" }}>{selectedClass.name}</h2>
+            {selectedClass.imageUrl && (
+              <img
+                src={selectedClass.imageUrl}
+                alt={selectedClass.name}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  borderRadius: "4px",
+                  marginBottom: "1rem",
+                }}
+              />
+            )}
+            <p><strong>Day:</strong> {selectedClass.day}</p>
+            <p><strong>Description:</strong> {selectedClass.description}</p>
+            <p><strong>Equipment:</strong> {selectedClass.equipment}</p>
+            <p><strong>Guide:</strong> {selectedClass.guide}</p>
+            <p><strong>Location:</strong> {selectedClass.location}</p>
+            <p><strong>Max Students:</strong> {selectedClass.maxStudents}</p>
+            <p><strong>Price:</strong> ${selectedClass.price}</p>
+            <p><strong>Time:</strong> {selectedClass.time}</p>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem" }}>
+              <button
+                onClick={closePopup}
+                style={{
+                  padding: "0.5rem 1rem",
+                  backgroundColor: "#ccc",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  navigate(`/RegisterToCourseNext/${selectedClass.id}`);
+                }}
+                style={{
+                  padding: "0.5rem 1rem",
+                  backgroundColor: "#28a745",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Register
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
-
 function StudentLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
   useEffect(() => {
     // בדוק אם יש יוזר שמחובר ב-LocalStorage
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -15,7 +13,6 @@ function StudentLogin() {
       console.log("User ID from LocalStorage:", loggedInUser.id);
     }
   }, []);
-
   const handleLogin = async () => {
     try {
       const q = query(
@@ -23,18 +20,14 @@ function StudentLogin() {
         where("email", "==", email),
         where("password", "==", password)
       );
-
       const querySnapshot = await getDocs(q);
-
       if (!querySnapshot.empty) {
         const user = querySnapshot.docs[0].data();
         const userId = querySnapshot.docs[0].id;
-
         localStorage.setItem(
           "loggedInUser",
           JSON.stringify({ id: userId, ...user })
         );
-
         if (user.role.trim() === "student") {
           alert("ברוך הבא תלמיד!");
           navigate("/studenthomepage");
@@ -49,7 +42,6 @@ function StudentLogin() {
       alert("Error: " + error.message);
     }
   };
-
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h2>התחברות תלמידים</h2>
@@ -93,5 +85,4 @@ function StudentLogin() {
     </div>
   );
 }
-
 export default StudentLogin;
