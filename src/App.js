@@ -29,7 +29,7 @@ function App() {
           <Route path="/studentlogin" element={<StudenLogin />} />
           <Route path="/adminlogin" element={<AdminLogin />} />
           <Route path="/student-register" element={<StudentRegister />} />
-          <Route path="/ " element={<AdminHomePage />} />
+          <Route path="/adminhomepage " element={<AdminHomePage />} />
           <Route path="/register" element={<RegisterToCourse />} />
           <Route path="/feedbackpage" element={<FeedbackPage />} />
           <Route path="/RegisterToCourseNext/:selectedClass" element={<RegisterToCourseNext />} />

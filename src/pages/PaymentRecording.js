@@ -14,8 +14,9 @@ const PaymentRecording = () => {
     company: "Visa",
   });
 
-  const [errors, setErrors] = useState({}); // Track field validation errors
-  const [formValid, setFormValid] = useState(false); // Track overall form validity
+  const [errors, setErrors] = useState({});
+  const [formValid, setFormValid] = useState(false);
+  const [showModal, setShowModal] = useState(false); // State to control the modal visibility
 
   const validateField = (name, value) => {
     let error = "";
@@ -62,6 +63,7 @@ const PaymentRecording = () => {
       }
     }
     setFormValid(isValid);
+    return isValid;
   };
 
   const handleChange = (e) => {
@@ -72,13 +74,26 @@ const PaymentRecording = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    validateForm();
-    if (!formValid) return;
+
+    const isFormValid = validateForm();
+    if (!isFormValid) {
+      console.log("Form is not valid");
+      return;
+    }
+
     try {
+      // Save payment details to Firestore
       const paymentMethodsCollection = collection(db, "paymentMethods");
       await addDoc(paymentMethodsCollection, paymentDetails);
       console.log("Payment method saved successfully!");
-      navigate("/studenthomepage");
+
+      // Show confirmation modal
+      setShowModal(true);
+
+      // Redirect to the student homepage after 5 seconds
+      setTimeout(() => {
+        navigate("/studenthomepage");
+      }, 5000);
     } catch (error) {
       console.error("Error saving payment method:", error);
     }
@@ -147,13 +162,23 @@ const PaymentRecording = () => {
           </select>
         </div>
         <button
-          type="submit"
+          type="button"
           style={styles.submitButton}
-          disabled={!formValid}
+          onClick={handleSubmit}
         >
           אישור תשלום והרשמה
         </button>
       </form>
+
+      {/* Confirmation Modal */}
+      {showModal && (
+        <div style={styles.modal}>
+          <div style={styles.modalContent}>
+            <h3>הסליקה בוצעה בהצלחה!</h3>
+            <p>אנו מעבירים אותך לדף הבית של הסטודנט...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -213,6 +238,25 @@ const styles = {
     borderRadius: "5px",
     cursor: "pointer",
     transition: "background 0.3s",
+  },
+  modal: {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: "9999",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: "20px",
+    borderRadius: "10px",
+    textAlign: "center",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
   },
 };
 

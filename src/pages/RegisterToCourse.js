@@ -184,7 +184,7 @@ const RegisterToClass = () => {
             <p><strong>ציוד:</strong> {selectedClass.equipment}</p>
             <p><strong>מדריך:</strong> {selectedClass.guide}</p>
             <p><strong>מיקום:</strong> {selectedClass.location}</p>
-            <p><strong>מחיר:</strong> ${selectedClass.price}</p>
+            <p><strong>מחיר:</strong> ש"ח {selectedClass.price}</p>
             <p><strong>יום:</strong> {selectedClass.day}</p>
             <p><strong>שעה:</strong> {selectedClass.time}</p>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem" }}>
