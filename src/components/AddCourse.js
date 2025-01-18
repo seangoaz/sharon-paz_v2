@@ -207,14 +207,14 @@ function AdminHomepage() {
           <input
             type="text"
             name="name"
-            placeholder="Course Name"
+            placeholder="שם החוג"
             value={formData.name}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
           />
           <textarea
             name="description"
-            placeholder="Description"
+            placeholder="תקציר"
             value={formData.description}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -222,7 +222,7 @@ function AdminHomepage() {
           <input
             type="text"
             name="day"
-            placeholder="Day (e.g., Monday)"
+            placeholder="יום בשבוע"
             value={formData.day}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -230,7 +230,7 @@ function AdminHomepage() {
           <input
             type="text"
             name="location"
-            placeholder="Location"
+            placeholder="מיקום"
             value={formData.location}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -238,7 +238,7 @@ function AdminHomepage() {
           <input
             type="text"
             name="price"
-            placeholder="Price"
+            placeholder="מחיר"
             value={formData.price}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -246,7 +246,7 @@ function AdminHomepage() {
           <input
             type="text"
             name="time"
-            placeholder="Time"
+            placeholder="שעה"
             value={formData.time}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -254,7 +254,7 @@ function AdminHomepage() {
           <input
             type="text"
             name="equipment"
-            placeholder="Equipment"
+            placeholder="ציוד"
             value={formData.equipment}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -262,7 +262,7 @@ function AdminHomepage() {
           <input
             type="text"
             name="guide"
-            placeholder="Guide"
+            placeholder="מדריך"
             value={formData.guide}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -270,7 +270,7 @@ function AdminHomepage() {
           <input
             type="text"
             name="maxStudents"
-            placeholder="Max Students"
+            placeholder="מספר מקסימלי של סטודנטים"
             value={formData.maxStudents}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -278,7 +278,7 @@ function AdminHomepage() {
           <input
             type="number"
             name="minAge"
-            placeholder="Minimum Age"
+            placeholder="גיל מינימלי"
             value={formData.minAge}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}
@@ -286,7 +286,7 @@ function AdminHomepage() {
           <input
             type="text"
             name="imageUrl"
-            placeholder="Enter image adress URL"
+            placeholder="הכנס כתובת תמונה"
             value={formData.imageUrl}
             onChange={handleInputChange}
             style={{ display: "block", margin: "10px auto", padding: "10px" }}

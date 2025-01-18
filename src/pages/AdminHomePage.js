@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { db } from "../firebaseConfig"; // Adjust the path to your firebase config
-import { collection, getDoc, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  getDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
 function AdminHome() {
   const [courseList, setCourseList] = useState([]); // State to hold the courses
@@ -88,12 +95,13 @@ function AdminHome() {
       // Reference to the class document
       const classRef = doc(db, "classes", classId);
       const classDoc = await getDoc(classRef);
-  
+
       if (classDoc.exists()) {
         // Get the list of user references from the class object
         const userRefs = classDoc.data().students; // Array of DocumentReferences
         console.log(userRefs);
         console.log(classDoc.data());
+
         // Fetch each user's document to get the username
         const usernames = await Promise.all(
           userRefs.map(async (userRef) => {
@@ -101,18 +109,61 @@ function AdminHome() {
             return userDoc.exists() ? userDoc.data().email : null;
           })
         );
-  
+
         // Filter out any null values (if some users were not found)
-        const validUsernames = usernames.filter((username) => username !== null);
-  
-        // Display usernames in an alert
-        alert(`Users in the class:\n${validUsernames.join(", ")}`);
+        const validUsernames = usernames.filter(
+          (username) => username !== null
+        );
+
+        // Display usernames in an alert if valid usernames are found
+        if (validUsernames.length > 0) {
+          alert(`Users in the class:\n${validUsernames.join(", ")}`);
+        } else {
+          // Notify if no valid users are found
+          alert("No users found in this class.");
+
+          // Show a toast notification for an empty list
+          showToast("The class has no valid users at the moment.");
+        }
       } else {
         console.log("Class document does not exist.");
       }
     } catch (error) {
       console.error("Error fetching class users:", error);
     }
+  }
+
+  // Simplified toast notification style with proper fading
+  function showToast(message) {
+    const toast = document.createElement("div");
+    toast.textContent = message;
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.backgroundColor = "#f44336"; // Red background for error
+    toast.style.color = "white";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "8px";
+    toast.style.fontSize = "16px";
+    toast.style.fontWeight = "bold";
+    toast.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+    toast.style.zIndex = "1000";
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.5s ease-in-out";
+
+    document.body.appendChild(toast);
+
+    // Fade in the toast
+    setTimeout(() => {
+      toast.style.opacity = "1";
+    }, 100);
+
+    // Remove the toast after 4 seconds
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => toast.remove(), 500); // Remove after fade-out completes
+    }, 4000);
   }
 
   // Handle course update
@@ -130,7 +181,7 @@ function AdminHome() {
         )
       );
 
-      alert("Course updated successfully!");
+      alert("הקורס עודכן בהצלחה!");
       handleCloseModal(); // Close the modal
     } catch (error) {
       console.error("Error updating course:", error.message);
@@ -162,7 +213,6 @@ function AdminHome() {
         הוסף קורס חדש
       </Link>
 
-      {/* Display live courses */}
       <div>
         <h2>קורסים קיימים</h2>
         <div
@@ -208,7 +258,7 @@ function AdminHome() {
                 ) : (
                   <p>No image available</p> // Fallback in case imageUrl is empty
                 )}
-                 <button
+                <button
                   onClick={() => fetchAndDisplayClassUsers(course.id)}
                   style={{
                     padding: "5px 10px",
@@ -245,11 +295,14 @@ function AdminHome() {
               </div>
             ))
           ) : (
-            <p>No courses available</p>
+            <>
+              <p>אין קורס זמין</p>
+              {/* Show toast notification for empty list */}
+              {showToast("לא קיימים קורסים כרגע")}
+            </>
           )}
         </div>
       </div>
-
       {/* Modal for editing course details */}
       {showModal && selectedCourse && (
         <div
@@ -293,7 +346,9 @@ function AdminHome() {
 
             <form onSubmit={handleUpdateCourse}>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="name" style={{ display: "block" }}>Course Name:</label>
+                <label htmlFor="name" style={{ display: "block" }}>
+                  שם הקורס:
+                </label>
                 <input
                   type="text"
                   id="name"
@@ -309,7 +364,9 @@ function AdminHome() {
                 />
               </div>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="description" style={{ display: "block" }}>Description:</label>
+                <label htmlFor="description" style={{ display: "block" }}>
+                  תקציר:
+                </label>
                 <textarea
                   id="description"
                   name="description"
@@ -325,7 +382,9 @@ function AdminHome() {
                 />
               </div>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="location" style={{ display: "block" }}>Location:</label>
+                <label htmlFor="location" style={{ display: "block" }}>
+                  מיקום:
+                </label>
                 <input
                   type="text"
                   id="location"
@@ -341,7 +400,9 @@ function AdminHome() {
                 />
               </div>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="price" style={{ display: "block" }}>Price:</label>
+                <label htmlFor="price" style={{ display: "block" }}>
+                  מחיר:
+                </label>
                 <input
                   type="text"
                   id="price"
@@ -357,7 +418,9 @@ function AdminHome() {
                 />
               </div>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="time" style={{ display: "block" }}>Time:</label>
+                <label htmlFor="time" style={{ display: "block" }}>
+                  שעה:
+                </label>
                 <input
                   type="text"
                   id="time"
@@ -373,7 +436,9 @@ function AdminHome() {
                 />
               </div>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="equipment" style={{ display: "block" }}>Equipment:</label>
+                <label htmlFor="equipment" style={{ display: "block" }}>
+                  ציוד נדרש:
+                </label>
                 <input
                   type="text"
                   id="equipment"
@@ -389,7 +454,9 @@ function AdminHome() {
                 />
               </div>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="guide" style={{ display: "block" }}>Guide:</label>
+                <label htmlFor="guide" style={{ display: "block" }}>
+                  מדריך:
+                </label>
                 <input
                   type="text"
                   id="guide"
@@ -405,7 +472,9 @@ function AdminHome() {
                 />
               </div>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="maxStudents" style={{ display: "block" }}>Max Students:</label>
+                <label htmlFor="maxStudents" style={{ display: "block" }}>
+                  מספר תלמידים מקסימלי:
+                </label>
                 <input
                   type="number"
                   id="maxStudents"
@@ -421,7 +490,9 @@ function AdminHome() {
                 />
               </div>
               <div style={{ marginBottom: "10px" }}>
-                <label htmlFor="minAge" style={{ display: "block" }}>Min Age:</label>
+                <label htmlFor="minAge" style={{ display: "block" }}>
+                  גיל מינימלי:
+                </label>
                 <input
                   type="number"
                   id="minAge"
