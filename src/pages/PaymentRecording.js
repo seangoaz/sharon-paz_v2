@@ -175,7 +175,7 @@ const PaymentRecording = () => {
         <div style={styles.modal}>
           <div style={styles.modalContent}>
             <h3>הסליקה בוצעה בהצלחה!</h3>
-            <p>אנו מעבירים אותך לדף הבית של הסטודנט...</p>
+            <p>אנו מעבירים אותך לדף הבית של התלמיד...</p>
           </div>
         </div>
       )}
@@ -232,8 +232,9 @@ const styles = {
   submitButton: {
     padding: "12px",
     fontSize: "18px",
-    backgroundColor: "#007bff",
-    color: "#fff",
+    backgroundColor: "#A3E4D7",
+    color: "#2C3E50",
+    fontWeight: "bold",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",

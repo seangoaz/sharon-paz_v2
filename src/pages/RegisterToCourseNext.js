@@ -208,8 +208,9 @@ const styles = {
     width: "100%",
   },
   infoButton: {
-    backgroundColor: "#007BFF",
-    color: "#fff",
+    backgroundColor: "#A3D5FF",
+    color: "#2C3E50",
+    fontWeight: "bold",
     border: "none",
     borderRadius: "5px",
     padding: "8px 12px",
@@ -228,8 +229,9 @@ const styles = {
     direction: "rtl",
   },
   submitButton: {
-    backgroundColor: "#28a745",
-    color: "white",
+    backgroundColor: "#A3E4D7",
+    color: "#2C3E50",
+    fontWeight: "bold",
     border: "none",
     borderRadius: "5px",
     padding: "12px 20px",

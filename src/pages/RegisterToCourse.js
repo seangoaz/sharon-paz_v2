@@ -106,7 +106,7 @@ const RegisterToClass = () => {
             }}
           >
             <h4 style={{ fontSize: "1rem", marginBottom: "0.5rem", color: "#333" }}>{cls.name}</h4>
-            
+
             {cls.imageUrl && (
               <img
                 src={cls.imageUrl}
@@ -125,8 +125,9 @@ const RegisterToClass = () => {
               onClick={() => openPopup(cls)}
               style={{
                 padding: "0.4rem 0.8rem",
-                backgroundColor: "#007bff",
-                color: "#fff",
+                backgroundColor: "#A3D5FF",
+                color: "#2C3E50",
+                fontWeight: "bold",
                 border: "none",
                 borderRadius: "4px",
                 cursor: "pointer",
@@ -154,6 +155,7 @@ const RegisterToClass = () => {
             justifyContent: "center",
             alignItems: "center",
             zIndex: "1000",
+            overflow: "auto", // Allow scrolling
           }}
         >
           <div
@@ -163,8 +165,10 @@ const RegisterToClass = () => {
               borderRadius: "8px",
               width: "90%",
               maxWidth: "350px",
+              maxHeight: "80vh", // Max height for popup
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
               textAlign: "left",
+              overflowY: "auto", // Make the content scrollable if it's too long
             }}
           >
             <h2 style={{ marginBottom: "1rem", fontSize: "1.2rem" }}>{selectedClass.name}</h2>
@@ -206,9 +210,10 @@ const RegisterToClass = () => {
                   navigate(`/RegisterToCourseNext/${selectedClass.id}`);
                 }}
                 style={{
+                  backgroundColor: "#A3E4D7",
+                  color: "#2C3E50",
+                  fontWeight: "bold",
                   padding: "0.5rem 1rem",
-                  backgroundColor: "#28a745",
-                  color: "#fff",
                   border: "none",
                   borderRadius: "4px",
                   cursor: "pointer",
