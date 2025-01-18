@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@mui/material";
+import { Button, Box, Typography } from "@mui/material";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
-import StudentCard from "../components/StudentCard"; // ייבוא רכיב כרטיס התלמיד
+import FeedbackIcon from "@mui/icons-material/Feedback";
+import EventNoteIcon from "@mui/icons-material/EventNote";
+import StudentCard from "../components/StudentCard";
 
 function StudentHomePage() {
   const [showCard, setShowCard] = useState(false);
@@ -11,53 +13,102 @@ function StudentHomePage() {
   const handleCloseCard = () => setShowCard(false);
 
   return (
-    <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h1>מסך תלמיד</h1>
-
-      {/* קישור לרישום לחוג */}
-      <Link
-        to="/register"
-        style={{
-          textDecoration: "none",
-          color: "#007BFF",
-          fontSize: "1.2rem",
-          fontWeight: "bold",
-        }}
-      >
-        רישום לחוג
-      </Link>
-      <br />
-
-      {/* קישור להזנת משוב */}
-      <Link
-        to="/feedbackpage"
-        style={{
-          textDecoration: "none",
-          color: "#FF5733",
-          fontSize: "1.2rem",
-          fontWeight: "bold",
-          marginTop: "20px",
-          display: "inline-block",
-        }}
-      >
-        הזן משוב על קורס
-      </Link>
-      <br />
-
-      {/* כפתור להצגת כרטיס התלמיד */}
-      <Button
-        variant="contained"
-        startIcon={<CreditCardIcon />}
-        onClick={handleShowCard}
+    <Box
+      sx={{
+        textAlign: "center",
+        marginTop: "20px",
+        padding: "20px",
+        maxWidth: "600px",
+        margin: "auto",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        borderRadius: "12px",
+        backgroundColor: "#f7f9fc",
+      }}
+    >
+      <Typography
+        variant="h4"
+        component="h1"
         sx={{
-          backgroundColor: "#4CAF50",
-          color: "#fff",
-          marginTop: "20px",
           fontWeight: "bold",
+          color: "#2C3E50",
+          marginBottom: "20px",
         }}
       >
-        כרטיס תלמיד
-      </Button>
+ברוכים הבאים למרכז שרון פז
+      </Typography>
+
+      {/* Buttons Row */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "15px",
+          flexWrap: "wrap",
+          marginBottom: "20px",
+        }}
+      >
+        {/* רישום לחוג */}
+        <Button
+          component={Link}
+          to="/register"
+          variant="contained"
+          startIcon={<EventNoteIcon />}
+          sx={{
+            backgroundColor: "#A3D5FF",
+            color: "#2C3E50",
+            fontWeight: "bold",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            textTransform: "none",
+            "&:hover": {
+              backgroundColor: "#87C3F8",
+            },
+          }}
+        >
+          רישום לחוג
+        </Button>
+
+        {/* הזנת משוב */}
+        <Button
+          component={Link}
+          to="/feedbackpage"
+          variant="contained"
+          startIcon={<FeedbackIcon />}
+          sx={{
+            backgroundColor: "#FFCBA3",
+            color: "#2C3E50",
+            fontWeight: "bold",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            textTransform: "none",
+            "&:hover": {
+              backgroundColor: "#FFB98A",
+            },
+          }}
+        >
+          הזן משוב על קורס
+        </Button>
+
+        {/* כפתור להצגת כרטיס תלמיד */}
+        <Button
+          variant="contained"
+          startIcon={<CreditCardIcon />}
+          onClick={handleShowCard}
+          sx={{
+            backgroundColor: "#A3E4D7",
+            color: "#2C3E50",
+            fontWeight: "bold",
+            padding: "10px 20px",
+            borderRadius: "8px",
+            textTransform: "none",
+            "&:hover": {
+              backgroundColor: "#8FDCCC",
+            },
+          }}
+        >
+          כרטיס תלמיד
+        </Button>
+      </Box>
 
       {/* כרטיס תלמיד */}
       {showCard && (
@@ -66,7 +117,7 @@ function StudentHomePage() {
           onClose={handleCloseCard}
         />
       )}
-    </div>
+    </Box>
   );
 }
 

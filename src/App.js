@@ -10,6 +10,7 @@ import AdminLogin from "./pages/AdminLogin";
 import StudentRegister from "./pages/StudentRegister";
 import FeedbackPage from "./pages/FeedbackPage";
 import AddCourse from "./components/AddCourse"; 
+import PaymentRecording from "./pages/PaymentRecording";
 
 
 // Import components
@@ -32,6 +33,7 @@ function App() {
           <Route path="/register" element={<RegisterToCourse />} />
           <Route path="/feedbackpage" element={<FeedbackPage />} />
           <Route path="/RegisterToCourseNext/:selectedClass" element={<RegisterToCourseNext />} />
+          <Route path="/payment-record" element={<PaymentRecording />} />
       </Routes>
       </BrowserRouter>
     </div>

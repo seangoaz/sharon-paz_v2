@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { db } from "../firebaseConfig";
-import { doc, getDoc, addDoc, collection } from "firebase/firestore";
+import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 
 const RegisterClassPage = () => {
   const { selectedClass } = useParams();
@@ -28,53 +28,48 @@ const RegisterClassPage = () => {
     };
 
     fetchCourseName();
-  }, [selectedClass]); // Added dependency array to prevent infinite re-renders
+  }, [selectedClass]);
 
   const handleApprovalChange = (e) => setIsApproved(e.target.checked);
   const handleDetailsChange = (e) => setDetails(e.target.value);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isApproved) {
-      alert("You must approve the parent checkbox before proceeding.");
+      alert("עליך לאשר תחילה את תקנון המרכז");
       return;
     }
     setShowPopup(true);
   };
 
-  const registerStudentToClass = async () => {
+  async function addStudentToClass(classId) {
     try {
-      const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-      if (!loggedInUser) {
-        console.error("No logged-in user found");
-        return;
-      }
+      const user = JSON.parse(localStorage.getItem("loggedInUser"));
+      const userRef = doc(db, "users", user.id);
+      const classRef = doc(db, "classes", classId);
 
-      addDoc(collection(db, "classes_users"), {
-        classId: selectedClass,
-        studentId: loggedInUser.id,
-        details,
+      await updateDoc(classRef, {
+        students: arrayUnion(userRef),
       });
 
-      console.log("Class registered successfully!");
-      console.log("Student name", loggedInUser.firstName)
+      console.log(`Student ${user.email} added to class ${classId}.`);
     } catch (error) {
-      console.error("Error registering student to class:", error);
+      console.error("Error adding student to class:", error);
     }
-  };
+  }
 
   const closePopup = () => {
     setShowPopup(false);
-    registerStudentToClass();
+    addStudentToClass(selectedClass);
   };
 
   const closeApprovalPopup = () => setShowApprovalPopup(false);
 
   return (
     <div style={styles.pageContainer}>
-      <h1 style={styles.title}>Register for {courseName}</h1>
+      <h1 style={styles.title}>הרשמה לחוג {courseName}</h1>
       <form onSubmit={handleSubmit} style={styles.form}>
-        {/* Checkbox for Parent Approval */}
         <div style={styles.formGroup}>
           <label>
             <input
@@ -82,7 +77,7 @@ const RegisterClassPage = () => {
               checked={isApproved}
               onChange={handleApprovalChange}
             />
-            I approve as the parent or legal guardian.
+אני מאשר את תקנון המרכז
           </label>
           <button
             type="button"
@@ -93,53 +88,87 @@ const RegisterClassPage = () => {
           </button>
         </div>
 
-        {/* Textarea for Additional Details */}
         <div style={styles.formGroup}>
           <label>
-            Specific Details We Should Know:
             <textarea
               value={details}
               onChange={handleDetailsChange}
-              placeholder="Any allergies, medical conditions, or other important information."
+              placeholder="הערות, אלרגיות, או מידע העלול להשפיע על השתתפות התלמיד בחוג"
               style={styles.textArea}
             />
           </label>
         </div>
 
-        {/* Submit Button */}
-        <button type="submit" style={styles.submitButton}>
-          Submit
+        <button
+          onClick={() => addStudentToClass(selectedClass)}
+          type="submit"
+          style={styles.submitButton}
+        >
+          שלח
         </button>
       </form>
 
-      {/* Confirmation Modal */}
       {showPopup && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
-            <h2>Confirmation</h2>
-            <p>
-              You registered for <strong>{courseName}</strong>.
+            <h2 style={styles.modalTitle}>אישור הרשמה</h2>
+            <p style={styles.modalText}>
+              נרשמת לחוג  <strong>{courseName}</strong>.
             </p>
-            <p>Details: {details || "None provided."}</p>
-            <button onClick={closePopup} style={styles.closeButton}>
-              Close
+            <p style={styles.modalText}>פרטים: {details || "אין"}</p>
+            <button
+              onClick={() => navigate("/payment-record")}
+              style={styles.closeButton}
+            >
+              סגור
             </button>
           </div>
         </div>
       )}
 
-      {/* Approval Info Modal */}
       {showApprovalPopup && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
-            <h2>Parent Approval</h2>
-            <p>
-              By checking this box, you confirm that you are the parent or legal
-              guardian of the child and agree to the terms and conditions of the
-              class registration.
+            <h2 style={styles.modalTitle}>תקנון המרכז</h2>
+            <p style={styles.modalText}>
+            התקנון המובא כאן נועד להסדיר את תנאי השימוש באתר ואת כללי הרישום לחוגים. הורים המבקשים לרשום את ילדיהם לחוגים באתר נדרשים לקרוא את התקנון ולאשר אותו כתנאי לשימוש באתר.
+
+1. כללי
+1.1. התקנון מנוסח בלשון זכר לצורכי נוחות בלבד, אך הוא פונה לכל המגדרים.
+1.2. השימוש באתר מותנה באישור התקנון. רישום לחוג מהווה הסכמה מלאה לתנאים המפורטים להלן.
+1.3. האתר שומר לעצמו את הזכות לעדכן את התקנון מעת לעת, וכל שינוי ייכנס לתוקף עם פרסומו באתר.
+
+2. רישום לחוגים
+2.1. הרישום לחוגים באתר מתבצע על בסיס מקום פנוי בלבד.
+2.2. על ההורים למלא פרטים מדויקים ועדכניים לגבי הילד הנרשם. אי מסירת פרטים נכונים עשויה למנוע את השתתפות הילד בחוג.
+2.3. אישור ההרשמה יישלח בדוא"ל להורה לאחר השלמת התשלום (אם קיים).
+
+3. תשלומים וביטולים
+3.1. התשלום עבור החוגים יתבצע באמצעות האתר, בכפוף להנחיות המפורטות בו.
+3.2. במקרה של ביטול הרשמה, יחולו תנאי הביטול הבאים:
+
+ביטול עד שבועיים לפני תחילת החוג: החזר מלא.
+
+ביטול בין שבועיים לשבוע לפני תחילת החוג: החזר של 50%.
+
+ביטול בשבוע שלפני תחילת החוג או לאחר תחילתו: לא יינתן החזר כספי.
+3.3. במידה וחוג מבוטל על ידי המפעילים, יינתן החזר כספי מלא.
+
+4. אחריות וביטחון הילד
+4.1. המפעילים מתחייבים לפעול בהתאם לנהלי הבטיחות והביטחון המקובלים.
+4.2. ההורים מצהירים כי הילד בריא וכשיר להשתתף בחוג. במקרה של מגבלה רפואית, על ההורים להודיע על כך מראש למפעילי החוג.
+4.3. האחריות על הגעת הילד לחוג ושובו לביתו מוטלת על ההורים בלבד.
+
+5. התנהגות וכללי משמעת
+5.1. המשתתפים מחויבים לשמור על כללי ההתנהגות והמשמעת כפי שייקבעו על ידי המדריכים.
+5.2. במקרה של הפרות סדר חמורות, שומר לעצמו המפעיל את הזכות להפסיק את השתתפותו של הילד בחוג ללא החזר כספי.
+
+6. פרטיות ושימוש במידע
+6.1. פרטי המשתמשים יישמרו בהתאם לחוק הגנת הפרטיות, ולא יועברו לצדדים שלישיים ללא אישור מראש.
+6.2. האתר עשוי להשתמש בפרטי הקשר שנמסרו לצורך עדכונים, תזכורות ומידע נוסף הקשור לחוגים.
             </p>
             <button onClick={closeApprovalPopup} style={styles.closeButton}>
-              Close
+              סגור
             </button>
           </div>
         </div>
@@ -148,53 +177,65 @@ const RegisterClassPage = () => {
   );
 };
 
-// Basic styling
 const styles = {
   pageContainer: {
     maxWidth: "600px",
     margin: "0 auto",
     padding: "20px",
-    fontFamily: "Arial, sans-serif",
+    fontFamily: "'Roboto', Arial, sans-serif",
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+    backgroundColor: "#f9f9f9",
+    borderRadius: "10px",
+    textAlign: "center",
   },
   title: {
-    textAlign: "center",
-    marginBottom: "20px",
+    fontSize: "24px",
+    fontWeight: "bold",
     color: "#333",
+    marginBottom: "20px",
   },
   form: {
     display: "flex",
     flexDirection: "column",
     gap: "15px",
+    textAlign: "left",
   },
   formGroup: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "5px",
+    width: "100%",
   },
   infoButton: {
     backgroundColor: "#007BFF",
-    color: "white",
+    color: "#fff",
     border: "none",
-    borderRadius: "4px",
-    padding: "5px 10px",
+    borderRadius: "5px",
+    padding: "8px 12px",
     cursor: "pointer",
+    alignSelf: "flex-end",
+    fontSize: "14px",
   },
   textArea: {
     width: "100%",
-    height: "80px",
-    marginTop: "5px",
-    padding: "8px",
-    borderRadius: "4px",
+    height: "100px",
+    padding: "10px",
+    borderRadius: "5px",
     border: "1px solid #ccc",
+    fontSize: "16px",
+    resize: "vertical",
+    direction: "rtl",
   },
   submitButton: {
     backgroundColor: "#28a745",
     color: "white",
     border: "none",
-    borderRadius: "4px",
-    padding: "10px 15px",
+    borderRadius: "5px",
+    padding: "12px 20px",
+    fontSize: "18px",
     cursor: "pointer",
-    fontSize: "16px",
+    transition: "background-color 0.3s ease",
   },
   overlay: {
     position: "fixed",
@@ -213,17 +254,55 @@ const styles = {
     padding: "20px",
     borderRadius: "8px",
     maxWidth: "400px",
-    width: "100%",
+    width: "90%",
+    maxHeight: "80vh",
+    overflowY: "auto",
     textAlign: "center",
+    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
+  },
+  modalTitle: {
+    fontSize: "22px",
+    fontWeight: "bold",
+    marginBottom: "15px",
+    color: "#333",
+  },
+  modalText: {
+    fontSize: "16px",
+    lineHeight: "1.6",
+    color: "#555",
+    marginBottom: "15px",
+    textAlign: "justify",
+    direction: "rtl",
   },
   closeButton: {
-    marginTop: "15px",
     backgroundColor: "#dc3545",
     color: "white",
     border: "none",
-    borderRadius: "4px",
-    padding: "10px 15px",
+    borderRadius: "5px",
+    padding: "10px 20px",
+    fontSize: "16px",
     cursor: "pointer",
+    transition: "background-color 0.3s ease",
+  },
+  "@media (max-width: 768px)": {
+    pageContainer: {
+      padding: "15px",
+    },
+    title: {
+      fontSize: "20px",
+    },
+    modal: {
+      maxWidth: "95%",
+      padding: "15px",
+    },
+    submitButton: {
+      fontSize: "16px",
+      padding: "10px 15px",
+    },
+    closeButton: {
+      fontSize: "14px",
+      padding: "8px 12px",
+    },
   },
 };
 

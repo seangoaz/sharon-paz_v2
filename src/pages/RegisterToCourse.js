@@ -9,6 +9,7 @@ const RegisterToClass = () => {
   const [filteredClasses, setFilteredClasses] = useState([]);
   const [user, setUser] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(""); // State to track search input
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -40,20 +41,57 @@ const RegisterToClass = () => {
   useEffect(() => {
     if (user) {
       const filtered = classes.filter((cls) => cls.minAge <= user.age);
-      console.log(user.name)
       setFilteredClasses(filtered);
     }
   }, [user, classes]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = classes.filter((cls) =>
+        cls.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredClasses(filtered);
+    } else {
+      setFilteredClasses(classes);
+    }
+  }, [searchQuery, classes]);
 
   const openPopup = (cls) => setSelectedClass(cls);
   const closePopup = () => setSelectedClass(null);
 
   return (
     <div style={{ padding: "1rem" }}>
-      <h1>Register to a Class</h1>
+      <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem", textAlign: "center" }}>בחר חוג</h1>
+
+      {/* Search Input */}
+      <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+        <input
+          type="text"
+          placeholder="חפש לפי שם החוג"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            padding: "0.5rem",
+            width: "80%",
+            fontSize: "1rem",
+            borderRadius: "4px",
+            border: "1px solid #ddd",
+            backgroundColor: "#f9f9f9",
+            marginBottom: "1rem",
+            boxSizing: "border-box",
+          }}
+        />
+      </div>
 
       {/* Classes Catalog */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: "1rem",
+          justifyContent: "center",
+        }}
+      >
         {filteredClasses.map((cls) => (
           <div
             key={cls.id}
@@ -61,32 +99,42 @@ const RegisterToClass = () => {
               border: "1px solid #ddd",
               borderRadius: "8px",
               padding: "0.5rem",
-              textAlign: "center",
               backgroundColor: "#f9f9f9",
+              textAlign: "center",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              transition: "transform 0.3s ease",
             }}
           >
-            <h4 style={{ margin: "0.5rem 0" }}>{cls.name}</h4>
+            <h4 style={{ fontSize: "1rem", marginBottom: "0.5rem", color: "#333" }}>{cls.name}</h4>
+            
             {cls.imageUrl && (
               <img
                 src={cls.imageUrl}
                 alt={cls.name}
-                style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "4px" }}
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  marginBottom: "0.5rem",
+                  maxHeight: "120px",
+                }}
               />
             )}
             <button
               onClick={() => openPopup(cls)}
               style={{
-                marginTop: "0.5rem",
-                padding: "0.25rem 0.5rem",
-                fontSize: "0.85rem",
+                padding: "0.4rem 0.8rem",
                 backgroundColor: "#007bff",
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
                 cursor: "pointer",
+                fontSize: "0.9rem",
+                transition: "background-color 0.3s ease",
               }}
             >
-              View Details
+              פרטי החוג
             </button>
           </div>
         ))}
@@ -114,12 +162,12 @@ const RegisterToClass = () => {
               padding: "1rem",
               borderRadius: "8px",
               width: "90%",
-              maxWidth: "400px",
+              maxWidth: "350px",
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
               textAlign: "left",
             }}
           >
-            <h2 style={{ margin: "0 0 1rem 0", fontSize: "1.5rem" }}>{selectedClass.name}</h2>
+            <h2 style={{ marginBottom: "1rem", fontSize: "1.2rem" }}>{selectedClass.name}</h2>
             {selectedClass.imageUrl && (
               <img
                 src={selectedClass.imageUrl}
@@ -127,19 +175,18 @@ const RegisterToClass = () => {
                 style={{
                   width: "100%",
                   height: "auto",
-                  borderRadius: "4px",
+                  borderRadius: "8px",
                   marginBottom: "1rem",
                 }}
               />
             )}
-            <p><strong>Day:</strong> {selectedClass.day}</p>
-            <p><strong>Description:</strong> {selectedClass.description}</p>
-            <p><strong>Equipment:</strong> {selectedClass.equipment}</p>
-            <p><strong>Guide:</strong> {selectedClass.guide}</p>
-            <p><strong>Location:</strong> {selectedClass.location}</p>
-            <p><strong>Max Students:</strong> {selectedClass.maxStudents}</p>
-            <p><strong>Price:</strong> ${selectedClass.price}</p>
-            <p><strong>Time:</strong> {selectedClass.time}</p>
+            <p><strong>תיאור:</strong> {selectedClass.description}</p>
+            <p><strong>ציוד:</strong> {selectedClass.equipment}</p>
+            <p><strong>מדריך:</strong> {selectedClass.guide}</p>
+            <p><strong>מיקום:</strong> {selectedClass.location}</p>
+            <p><strong>מחיר:</strong> ${selectedClass.price}</p>
+            <p><strong>יום:</strong> {selectedClass.day}</p>
+            <p><strong>שעה:</strong> {selectedClass.time}</p>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem" }}>
               <button
                 onClick={closePopup}
@@ -149,9 +196,10 @@ const RegisterToClass = () => {
                   border: "none",
                   borderRadius: "4px",
                   cursor: "pointer",
+                  fontSize: "0.9rem",
                 }}
               >
-                Close
+                סגור
               </button>
               <button
                 onClick={() => {
@@ -164,9 +212,10 @@ const RegisterToClass = () => {
                   border: "none",
                   borderRadius: "4px",
                   cursor: "pointer",
+                  fontSize: "0.9rem",
                 }}
               >
-                Register
+                הירשם
               </button>
             </div>
           </div>
