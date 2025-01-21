@@ -27,6 +27,7 @@ function AdminHome() {
     minAge: "",
     imageUrl: "",
   });
+  const [generating, setGenerating] = useState(false); // state to indicate שה-API עובד
 
   // Fetch courses from Firestore when the component mounts
   const fetchCourses = async () => {
@@ -118,11 +119,10 @@ function AdminHome() {
 
         // Display usernames in an alert if valid usernames are found
         if (validUsernames.length > 0) {
-          alert(`Users in the class:\n${validUsernames.join(", ")}`);
+          alert(`מיילים של תלמידים רשומים לחוג\n${validUsernames.join(", ")}`);
         } else {
           // Notify if no valid users are found
-          alert("No users found in this class.");
-
+          alert("אין תלמידים שרשומים לחוג");
           // Show a toast notification for an empty list
           showToast("The class has no valid users at the moment.");
         }
@@ -190,6 +190,58 @@ function AdminHome() {
     }
   };
 
+  // פונקציה לשליחת התיאור ל-OpenAI וקבלת המלצה 
+  const handleGenerateDescription = async () => {
+    // נשתמש בערך הקיים של השדה description
+    const courseDescription = formData.description.trim();
+    if (!courseDescription) {
+      alert("נא להזין תקציר לפני שליחה ל-OpenAI");
+      return;
+    }
+
+    setGenerating(true);
+
+    try {
+      const apiBase = "https://test-40.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview";
+      const apiKey = "9uvLozP2T9SxLzpKQuTYuDzEO8NO9WkaV4Ta0whPFqrOhxRcanRRJQQJ99AJACYeBjFXJ3w3AAABACOGvil6";
+
+      // הגדרת ה-System Prompt
+      const systemPrompt =
+        "You are a marketing expert specializing in creating concise and engaging promotional content. The user will provide a brief description of a new course. Your task is to return a marketing text of exactly three lines, designed to attract attention and encourage enrollment. The text should be suitable for displaying as a course description on a website.";
+
+      const response = await fetch(apiBase, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": apiKey,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: systemPrompt }, // הוספת ההנחיה
+            { role: "user", content: courseDescription },
+          ],
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        // עדכון שדה התקציר עם המלצת ה-OpenAI
+        const newDescription = data.choices[0].message.content;
+        setFormData((prev) => ({
+          ...prev,
+          description: newDescription,
+        }));
+      } else {
+        alert(`Error: ${data.error.message || "Unable to get a response"}`);
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   // Fetch courses when the component mounts
   useEffect(() => {
     fetchCourses();
@@ -197,7 +249,7 @@ function AdminHome() {
 
   return (
     <div style={{ textAlign: "center", marginTop: "20px" }}>
-      <h1>מסך מנהלים </h1>
+      <h1>מסך מנהלים</h1>
 
       {/* Link to Add Course page */}
       <Link
@@ -248,27 +300,32 @@ function AdminHome() {
                     src={course.imageUrl}
                     alt={course.name}
                     style={{
-                      width: "50px",
-                      height: "50px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                      gap: "10px",
+                      overflowX: "auto",
+                      whiteSpace: "nowrap",
+                      padding: "10px",
+                      border: "1px solid #ddd",
                       borderRadius: "5px",
-                      position: "absolute",
-                      top: "10px",
-                      left: "10px",
                     }}
                   />
                 ) : (
-                  <p>No image available</p> // Fallback in case imageUrl is empty
+                  <p>No image available</p>
                 )}
                 <button
                   onClick={() => fetchAndDisplayClassUsers(course.id)}
                   style={{
-                    padding: "5px 10px",
-                    margin: "10px 0",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
-                    border: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    gap: "10px",
+                    overflowX: "auto",
+                    whiteSpace: "nowrap",
+                    padding: "10px",
+                    border: "1px solid #ddd",
                     borderRadius: "5px",
-                    cursor: "pointer",
                   }}
                 >
                   הצג תלמידים
@@ -298,7 +355,6 @@ function AdminHome() {
           ) : (
             <>
               <p>אין חוג זמין</p>
-              {/* Show toast notification for empty list */}
               {showToast("לא קיימים חוגים כרגע")}
             </>
           )}
@@ -313,21 +369,23 @@ function AdminHome() {
             left: "0",
             right: "0",
             bottom: "0",
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            backgroundColor: "rgba(0, 0, 0, 0.7)", // Dimmed background
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            zIndex: 1000,
+            overflow: "auto",
           }}
         >
           <div
             style={{
               backgroundColor: "white",
+              borderRadius: "10px",
+              maxWidth: "90%",
+              maxHeight: "90%",
+              overflow: "auto",
               padding: "20px",
-              borderRadius: "8px",
-              width: "500px",
-              maxWidth: "100%",
-              boxSizing: "border-box",
-              position: "relative",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
             }}
           >
             {/* Course Image */}
@@ -360,17 +418,33 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
-              <div style={{ marginBottom: "10px" }}>
+              <div style={{ marginBottom: "10px", position: "relative" }}>
                 <label htmlFor="description" style={{ display: "block" }}>
                   תקציר:
                 </label>
-                  <button  style={{ marginLeft: "10px" }}>
-                  <AutoAwesomeIcon style={{ marginRight: "5px" }} />
-                  </button>
+                {/* לחצן לייצור תקציר חדש (שליחת השאלה ל־OpenAI) */}
+                <button
+                  type="button"
+                  onClick={handleGenerateDescription}
+                  disabled={generating}
+                  style={{
+                    position: "absolute",
+                    right: "0",
+                    top: "0",
+                    padding: "5px 10px",
+                    backgroundColor: "#007BFF",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {generating ? "טוען..." : <AutoAwesomeIcon />}
+                </button>
                 <textarea
                   id="description"
                   name="description"
@@ -380,8 +454,9 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
-                    resize: "vertical", // Allow vertical resize for text area
+                    boxSizing: "border-box",
+                    resize: "vertical",
+                    paddingRight: "80px", // מרווח כדי שהלחצן לא יכסה את הטקסט
                   }}
                 />
               </div>
@@ -399,7 +474,7 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -417,7 +492,7 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -435,7 +510,7 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -453,7 +528,7 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -471,7 +546,7 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -489,7 +564,7 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -507,11 +582,10 @@ function AdminHome() {
                     width: "100%",
                     padding: "10px",
                     borderRadius: "5px",
-                    boxSizing: "border-box", // Prevents input fields from exceeding container
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
-
               {/* Submit Button */}
               <button
                 type="submit"

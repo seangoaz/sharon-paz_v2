@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebaseConfig";
-import { collection, query, where, getDocs, addDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 
 function FeedbackPage() {
   const [userData, setUserData] = useState(null);
@@ -13,8 +22,9 @@ function FeedbackPage() {
   });
   const [comments, setComments] = useState("");
   const [existingFeedbackId, setExistingFeedbackId] = useState(null);
+  const [apiFeedbackRating, setApiFeedbackRating] = useState(null); // AI rating
 
-  // טוען את פרטי המשתמש המחובר
+  // Fetch user details
   useEffect(() => {
     const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
     if (loggedInUser) {
@@ -24,7 +34,7 @@ function FeedbackPage() {
     }
   }, []);
 
-  // טוען את החוגים של המשתמש
+  // Fetch user's courses
   useEffect(() => {
     const fetchCourses = async () => {
       if (userData) {
@@ -56,7 +66,7 @@ function FeedbackPage() {
     fetchCourses();
   }, [userData]);
 
-  // טוען משוב קיים אם יש
+  // Load existing feedback
   const loadExistingFeedback = async (courseId) => {
     try {
       const userRef = doc(db, "users", userData.id);
@@ -73,7 +83,7 @@ function FeedbackPage() {
 
         setRatings(feedbackData.ratings);
         setComments(feedbackData.comments);
-        setExistingFeedbackId(feedbackDoc.id); // שמירת ID למשוב לעריכה
+        setExistingFeedbackId(feedbackDoc.id);
       } else {
         setRatings({
           contentQuality: 0,
@@ -88,7 +98,7 @@ function FeedbackPage() {
     }
   };
 
-  // מעדכן חוג נבחר
+  // Update selected course
   const handleCourseChange = (courseId) => {
     setSelectedCourse(courseId);
     if (courseId) {
@@ -96,10 +106,10 @@ function FeedbackPage() {
     }
   };
 
-  // שמירת/עדכון משוב
+  // Save or update feedback
   const handleSubmitFeedback = async () => {
     if (!selectedCourse) {
-      alert("אנא בחר קורס!");
+      alert("אנא בחר חוג!");
       return;
     }
 
@@ -108,7 +118,6 @@ function FeedbackPage() {
       const courseRef = doc(db, "classes", selectedCourse);
 
       if (existingFeedbackId) {
-        // עדכון משוב קיים
         const feedbackRef = doc(db, "feedback", existingFeedbackId);
         await updateDoc(feedbackRef, {
           ratings,
@@ -117,7 +126,6 @@ function FeedbackPage() {
         });
         alert("המשוב עודכן בהצלחה!");
       } else {
-        // יצירת משוב חדש
         await addDoc(collection(db, "feedback"), {
           user_id: userRef,
           course_id: courseRef,
@@ -135,6 +143,47 @@ function FeedbackPage() {
     } catch (error) {
       console.error("Error saving feedback:", error.message);
       alert("שגיאה בשמירת המשוב.");
+    }
+  };
+
+  // Call API for feedback analysis
+  const calculateApiRating = async () => {
+    if (!comments.trim()) {
+      alert("אנא הזן הערה כללית!");
+      return;
+    }
+
+    try {
+      const apiBase = "https://test-40.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview";
+      const apiKey = "9uvLozP2T9SxLzpKQuTYuDzEO8NO9WkaV4Ta0whPFqrOhxRcanRRJQQJ99AJACYeBjFXJ3w3AAABACOGvil6";
+      const systemPrompt =
+        "You are an AI that receives a user feedback. Return ONLY a number from 1 to 10 that represents how good or positive the feedback is, without any additional text or explanation.";
+
+      const response = await fetch(apiBase, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": apiKey,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: comments },
+          ],
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        const rating = parseInt(data.choices[0].message.content, 10);
+        setApiFeedbackRating(rating);
+        setRatings((prev) => ({ ...prev, overallSatisfaction: rating }));
+      } else {
+        console.error(`Error calculating AI rating: ${data.error.message || "No response"}`);
+      }
+    } catch (error) {
+      console.error("Error calculating AI rating:", error.message);
     }
   };
 
@@ -177,13 +226,25 @@ function FeedbackPage() {
         />
       </div>
 
-      <label style={styles.formLabel}>הערה כללית:</label>
+      <label style={styles.formLabel}>
+        הערה כללית:
+        <button onClick={calculateApiRating} style={styles.apiButton}>
+          חשב דירוג
+        </button>
+      </label>
       <textarea
         placeholder="הזן הערה כללית (לא חובה)"
         value={comments}
         onChange={(e) => setComments(e.target.value)}
         style={styles.formTextarea}
       ></textarea>
+
+      {apiFeedbackRating !== null && (
+        <div style={styles.apiRatingContainer}>
+          <h3>הדירוג שחושב באמצעות בינה מלאכותית</h3>
+          <p style={styles.apiRatingValue}>{apiFeedbackRating}</p>
+        </div>
+      )}
 
       <div style={styles.formActions}>
         <button onClick={handleSubmitFeedback} style={styles.submitButton}>
@@ -194,7 +255,6 @@ function FeedbackPage() {
   );
 }
 
-// רכיב דירוג כוכבים
 const StarRating = ({ value, onChange }) => {
   return (
     <div style={styles.starRating}>
@@ -231,6 +291,16 @@ const styles = {
     margin: "10px 0",
     fontWeight: "bold",
   },
+  apiButton: {
+    marginLeft: "10px",
+    padding: "5px 10px",
+    fontSize: "0.9rem",
+    backgroundColor: "#28a745",
+    color: "#fff",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+  },
   formSelect: {
     width: "100%",
     padding: "10px",
@@ -254,18 +324,29 @@ const styles = {
   star: {
     fontSize: "2rem",
     cursor: "pointer",
-    margin: "0 5px",
+  },
+  apiRatingContainer: {
+    marginTop: "20px",
+    padding: "10px",
+    backgroundColor: "#f1f1f1",
+    borderRadius: "5px",
+    textAlign: "center",
+  },
+  apiRatingValue: {
+    fontSize: "2rem",
+    fontWeight: "bold",
+    color: "#28a745", // Green color for positive feedback
   },
   formActions: {
     textAlign: "center",
   },
   submitButton: {
     padding: "10px 20px",
-    fontSize: "1.2rem",
-    backgroundColor: "#007BFF",
+    backgroundColor: "#007bff",
     color: "#fff",
     border: "none",
     borderRadius: "5px",
+    fontSize: "1.2rem",
     cursor: "pointer",
   },
 };
