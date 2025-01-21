@@ -25,7 +25,7 @@ function Login() {
 
         // Redirect based on user role
          if (user.role.trim() === "admin") {
-          alert("ברוך הבא - מנהך / מדריך");
+          alert("ברוך הבא - מנהל / מדריך");
           navigate("/adminhomepage");
         } else {
           alert("Role is undefined. Please contact support.");

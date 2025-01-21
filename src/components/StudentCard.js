@@ -1,8 +1,19 @@
 import React, { useEffect, useState } from "react";
 import Barcode from "react-barcode";
 
-function StudentCard({ user, onClose }) {
+function StudentCard({ onClose }) {
+  const [userData, setUserData] = useState(null);
   const [time, setTime] = useState(new Date().toLocaleTimeString());
+
+  // טוען את פרטי המשתמש המחובר מתוך localStorage
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (loggedInUser) {
+      setUserData(loggedInUser); // שמירת נתוני המשתמש ב-state
+    } else {
+      console.error("No user data found. Please log in.");
+    }
+  }, []);
 
   // עדכון השעה בזמן אמת
   useEffect(() => {
@@ -12,6 +23,15 @@ function StudentCard({ user, onClose }) {
 
     return () => clearInterval(interval); // נקה את ה-interval
   }, []);
+
+  // אם אין נתוני משתמש, הצג הודעה מתאימה
+  if (!userData) {
+    return (
+      <div style={{ textAlign: "center", padding: "20px", color: "#333" }}>
+        <h3>טוען נתוני משתמש...</h3>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -39,16 +59,17 @@ function StudentCard({ user, onClose }) {
       >
         <h2>כרטיס תלמיד</h2>
         <p style={{ textAlign: "right", margin: "10px 0" }}>
-          <strong>שם:</strong> {user.firstName} {user.lastName}
+          <strong>שם:</strong> {userData.firstName} {userData.lastName}
         </p>
         <p style={{ textAlign: "right", margin: "10px 0" }}>
-          <strong>מייל:</strong> {user.email}
+          <strong style={{ float: "right", marginLeft: "5px" }}>מייל:</strong>
+          <span style={{ direction: "rtl", display: "inline-block" }}>{userData.email}</span>
         </p>
         <div style={{ margin: "20px 0" }}>
-          <Barcode value={user.id} format="CODE128" width={2} height={50} />
+          <Barcode value={userData.phoneNumber || "אין מספר טלפון"} format="CODE128" width={2} height={50} />
         </div>
         <p style={{ textAlign: "right", margin: "10px 0" }}>
-          <strong>מזהה:</strong> {user.id}
+          <strong>מספר טלפון:</strong> {userData.phoneNumber || "לא סופק"}
         </p>
         <p style={{ textAlign: "right", margin: "10px 0" }}>
           <strong>שעה:</strong> {time}

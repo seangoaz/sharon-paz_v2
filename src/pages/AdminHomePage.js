@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { db } from "../firebaseConfig"; // Adjust the path to your firebase config
 import {
   collection,
@@ -181,7 +182,7 @@ function AdminHome() {
         )
       );
 
-      alert("הקורס עודכן בהצלחה!");
+      alert("החוג עודכן בהצלחה!");
       handleCloseModal(); // Close the modal
     } catch (error) {
       console.error("Error updating course:", error.message);
@@ -210,11 +211,11 @@ function AdminHome() {
           display: "block",
         }}
       >
-        הוסף קורס חדש
+        הוסף חוג חדש
       </Link>
 
       <div>
-        <h2>קורסים קיימים</h2>
+        <h2>חוגים קיימים</h2>
         <div
           style={{
             display: "flex",
@@ -290,15 +291,15 @@ function AdminHome() {
                     cursor: "pointer",
                   }}
                 >
-                  מחק קורס
+                  מחק חוג
                 </button>
               </div>
             ))
           ) : (
             <>
-              <p>אין קורס זמין</p>
+              <p>אין חוג זמין</p>
               {/* Show toast notification for empty list */}
-              {showToast("לא קיימים קורסים כרגע")}
+              {showToast("לא קיימים חוגים כרגע")}
             </>
           )}
         </div>
@@ -347,7 +348,7 @@ function AdminHome() {
             <form onSubmit={handleUpdateCourse}>
               <div style={{ marginBottom: "10px" }}>
                 <label htmlFor="name" style={{ display: "block" }}>
-                  שם הקורס:
+                  שם החוג:
                 </label>
                 <input
                   type="text"
@@ -367,6 +368,9 @@ function AdminHome() {
                 <label htmlFor="description" style={{ display: "block" }}>
                   תקציר:
                 </label>
+                  <button  style={{ marginLeft: "10px" }}>
+                  <AutoAwesomeIcon style={{ marginRight: "5px" }} />
+                  </button>
                 <textarea
                   id="description"
                   name="description"
